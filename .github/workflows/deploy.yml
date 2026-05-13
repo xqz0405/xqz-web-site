@@ -3,7 +3,11 @@ name: Deploy to Server
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - 'xqz-web'  # 子模块自动更新的提交不重复触发
   workflow_dispatch:
+  schedule:
+    - cron: '0 16 * * *'  # UTC 16:00 = 北京时间 0:00
 
 jobs:
   build-and-deploy:
@@ -12,6 +16,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update submodule to latest
+        run: |
+          git submodule update --remote xqz-web
+          if git diff --name-only xqz-web | grep -q .; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add xqz-web
+            git commit -m "chore: auto update submodule xqz-web"
+            git push
+            echo "SUBMODULE_UPDATED=true" >> $GITHUB_ENV
+          else
+            echo "No new commits in submodule."
+          fi
 
       - uses: actions/setup-node@v4
         with:
