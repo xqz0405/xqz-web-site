@@ -1,0 +1,88 @@
+---
+interface Props {
+  currentStack: string
+}
+
+const { currentStack } = Astro.props
+
+import { getCollection } from 'astro:content'
+
+const stackConfig: Record<string, { name: string; label: string }> = {
+  'go': { name: 'go', label: 'Go' },
+  'nodejs': { name: 'nodejs', label: 'Node.js' },
+  'python': { name: 'python', label: 'Python' },
+  'web-前端': { name: 'web-前端', label: 'Web 前端' }
+}
+
+const config = stackConfig[currentStack]
+if (!config) {
+  return Astro.redirect('/')
+}
+
+const allArticles = await getCollection(currentStack as any)
+
+// Group by category (directory)
+const categoryMap = new Map<string, any[]>()
+for (const entry of allArticles) {
+  const parts = entry.id.split('/')
+  const category = parts.length > 1 ? parts.slice(0, -1).join('/') : ''
+  if (!categoryMap.has(category)) categoryMap.set(category, [])
+  categoryMap.get(category)!.push(entry)
+}
+
+// Sort categories, sort articles within each category
+const categories = [...categoryMap.entries()].sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
+
+// Current page path for active state
+const currentPath = Astro.url.pathname
+---
+
+<aside class="sidebar">
+  <div style="padding: 0 20px 12px; font-weight: 700; font-size: 1rem; color: var(--c-brand);">
+    {config.label}
+  </div>
+
+  {categories.map(([category, articles]) => (
+    <div class="sidebar-section">
+      {category ? (
+        <div class="sidebar-section-title" data-category={category}>
+          <span class="arrow">▼</span>
+          {category}
+        </div>
+      ) : (
+        <div class="sidebar-section-title">
+          <span class="arrow">▼</span>
+          未分类
+        </div>
+      )}
+      <ul class="sidebar-links" data-category-id={category || '__root'}>
+        {articles
+          .sort((a, b) => (a.data.title || a.id).localeCompare(b.data.title || b.id, 'zh-CN'))
+          .map(entry => {
+            const slug = entry.id.replace(/\.md$/, '')
+            const href = `/${currentStack}/${encodeURIComponent(slug).replace(/%2F/g, '/')}`
+            const isActive = decodeURIComponent(currentPath) === `/${currentStack}/${slug}` || decodeURIComponent(currentPath) === `/${currentStack}/${slug}/`
+            return (
+              <li>
+                <a href={href} class:list={[isActive && 'active']}>
+                  {entry.data.title || entry.id.replace(/\.md$/, '').split('/').pop()!}
+                </a>
+              </li>
+            )
+          })
+        }
+      </ul>
+    </div>
+  ))}
+</aside>
+
+<script is:inline>
+  document.querySelectorAll('.sidebar-section-title').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = el.dataset.categoryId || '__root'
+      const links = document.querySelector(`[data-category-id="${id}"]`)
+      if (links) links.classList.toggle('hidden')
+      el.classList.toggle('collapsed')
+    })
+  })
+</script>

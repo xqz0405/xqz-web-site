@@ -1,0 +1,3 @@
+[submodule "xqz-web"]
+	path = xqz-web
+	url = https://github.com/xqz0405/xqz-Knowledge_base.git

@@ -1,0 +1,22 @@
+---
+import BaseLayout from './BaseLayout.astro'
+import Sidebar from '../components/Sidebar.astro'
+
+interface Props {
+  title: string
+  currentStack: string
+}
+
+const { title, currentStack } = Astro.props
+---
+
+<BaseLayout title={title} currentStack={currentStack}>
+  <div class="layout">
+    <Sidebar currentStack={currentStack} />
+    <main class="main-content">
+      <article class="article-content">
+        <slot />
+      </article>
+    </main>
+  </div>
+</BaseLayout>

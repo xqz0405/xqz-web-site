@@ -1,0 +1,6 @@
+[
+  { "name": "go", "desc": "并发与后端利器", "icon": "🟢", "obsidianDir": "go" },
+  { "name": "nodejs", "desc": "全栈 JavaScript 运行时", "icon": "🟩", "obsidianDir": "nodejs" },
+  { "name": "python", "desc": "通用编程与数据科学", "icon": "🔵", "obsidianDir": "python" },
+  { "name": "web-前端", "desc": "现代 Web 前端技术", "icon": "🟡", "obsidianDir": "web 前端" }
+]

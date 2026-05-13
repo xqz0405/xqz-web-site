@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getCollection } from 'astro:content'
+
+const stackLabels: Record<string, string> = {
+  'go': 'Go',
+  'nodejs': 'Node.js',
+  'python': 'Python',
+  'web-前端': 'Web 前端'
+}
+
+const stackDescs: Record<string, string> = {
+  'go': '并发与后端利器',
+  'nodejs': '全栈 JavaScript 运行时',
+  'python': '通用编程与数据科学',
+  'web-前端': '现代 Web 前端技术'
+}
+
+export async function getStaticPaths() {
+  const stacks = ['go', 'nodejs', 'python', 'web-前端']
+  return stacks.map(s => ({ params: { stack: s } }))
+}
+
+const { stack } = Astro.params
+
+const allArticles = await getCollection(stack as any)
+
+// Group by category
+const categoryMap = new Map<string, any[]>()
+for (const entry of allArticles) {
+  const parts = entry.id.split('/')
+  const category = parts.length > 1 ? parts[0] : ''
+  if (!categoryMap.has(category)) categoryMap.set(category, [])
+  categoryMap.get(category)!.push(entry)
+}
+
+const categories = [...categoryMap.entries()].sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
+const label = stackLabels[stack!] || stack
+const desc = stackDescs[stack!] || ''
+---
+
+<BaseLayout title={label} currentStack={stack}>
+  <div style="padding: 40px 24px; max-width: 900px; margin: 0 auto; padding-top: calc(var(--header-height) + 32px);">
+    <div class="stack-header">
+      <h1>{label}</h1>
+      <p>{desc} · {allArticles.length} 篇文章</p>
+    </div>
+
+    <div class="category-grid">
+      {categories.map(([category, articles]) => (
+        <div class="category-card">
+          <h3>{category || '未分类'}</h3>
+          <ul>
+            {articles
+              .sort((a, b) => (a.data.title || a.id).localeCompare(b.data.title || b.id, 'zh-CN'))
+              .map(entry => {
+                const slug = entry.id.replace(/\.md$/, '')
+                const href = `/${stack}/${encodeURIComponent(slug).replace(/%2F/g, '/')}`
+                return (
+                  <li>
+                    <a href={href}>
+                      {entry.data.title || entry.id.replace(/\.md$/, '').split('/').pop()!}
+                    </a>
+                  </li>
+                )
+              })
+            }
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,63 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  currentStack?: string
+}
+
+const { title, currentStack } = Astro.props
+
+const stacks = [
+  { name: 'go', label: '🟢 GO', path: '/go' },
+  { name: 'nodejs', label: '🟩 NODEJS', path: '/nodejs' },
+  { name: 'python', label: '🔵 PYTHON', path: '/python' },
+  { name: 'web-前端', label: '🟡 WEB', path: '/web-前端' }
+]
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} - XQZ 技术知识库</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <header class="header">
+      <a href="/" class="header-logo">XQZ 技术知识库</a>
+      <nav>
+        <ul class="header-nav">
+          {stacks.map(s => (
+            <li>
+              <a href={s.path} class:list={[currentStack === s.name && 'active']}>
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题">🌙</button>
+    </header>
+
+    <slot />
+
+    <script is:inline>
+      ;(function() {
+        const key = 'xqz-theme'
+        const toggle = document.getElementById('theme-toggle')
+        function apply(t) {
+          document.documentElement.classList.toggle('dark', t === 'dark')
+          if (toggle) toggle.textContent = t === 'dark' ? '☀️' : '🌙'
+          localStorage.setItem(key, t)
+        }
+        const saved = localStorage.getItem(key) || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light')
+        apply(saved)
+        if (toggle) toggle.addEventListener('click', () => {
+          apply(localStorage.getItem(key) === 'dark' ? 'light' : 'dark')
+        })
+      })()
+    </script>
+  </body>
+</html>

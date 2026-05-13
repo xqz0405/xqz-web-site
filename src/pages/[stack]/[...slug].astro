@@ -1,0 +1,29 @@
+---
+import ArticleLayout from '../../layouts/ArticleLayout.astro'
+import { getCollection } from 'astro:content'
+
+export async function getStaticPaths() {
+  const stacks = ['go', 'nodejs', 'python', 'web-前端']
+  const paths = []
+
+  for (const stack of stacks) {
+    const entries = await getCollection(stack as any)
+    for (const entry of entries) {
+      const slugPath = entry.id.replace(/\.md$/, '')
+      paths.push({
+        params: { stack, slug: slugPath },
+        props: { entry, stack }
+      })
+    }
+  }
+
+  return paths
+}
+
+const { entry, stack } = Astro.props
+const { Content } = await entry.render()
+---
+
+<ArticleLayout title={entry.data.title} currentStack={stack}>
+  <Content />
+</ArticleLayout>
