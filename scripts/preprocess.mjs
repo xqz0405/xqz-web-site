@@ -1,9 +1,11 @@
 import fs from 'fs-extra'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import matter from 'gray-matter'
 import { globSync } from 'glob'
 
-const SCRIPT_DIR = path.dirname(import.meta.url.replace('file:///', ''))
+const __filename = fileURLToPath(import.meta.url)
+const SCRIPT_DIR = path.dirname(__filename)
 const SITE_ROOT = path.resolve(SCRIPT_DIR, '..')
 const OBSIDIAN_ROOT = path.resolve(SITE_ROOT, 'xqz-web')
 const DOCS_ROOT = path.resolve(SITE_ROOT, 'src/content')
