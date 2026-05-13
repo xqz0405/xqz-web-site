@@ -23,7 +23,8 @@ export async function getStaticPaths() {
 
 const { stack } = Astro.params
 
-const allArticles = await getCollection(stack as any)
+const allArticles = (await getCollection(stack as any))
+  .filter((entry: any) => !entry.id.endsWith('index.md'))
 
 // Group by category
 const categoryMap = new Map<string, any[]>()
@@ -34,13 +35,15 @@ for (const entry of allArticles) {
   categoryMap.get(category)!.push(entry)
 }
 
-const categories = [...categoryMap.entries()].sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
+const categories = [...categoryMap.entries()]
+  .filter(([category]) => category !== '')
+  .sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
 const label = stackLabels[stack!] || stack
 const desc = stackDescs[stack!] || ''
 ---
 
 <BaseLayout title={label} currentStack={stack}>
-  <div style="padding: 40px 24px; max-width: 900px; margin: 0 auto; padding-top: calc(var(--header-height) + 32px);">
+  <div style="padding: 40px 32px; max-width: 1920px; margin: 0 auto; padding-top: calc(var(--header-height) + 32px);">
     <div class="stack-header">
       <h1>{label}</h1>
       <p>{desc} · {allArticles.length} 篇文章</p>
@@ -49,7 +52,7 @@ const desc = stackDescs[stack!] || ''
     <div class="category-grid">
       {categories.map(([category, articles]) => (
         <div class="category-card">
-          <h3>{category || '未分类'}</h3>
+          <h3>{category}</h3>
           <ul>
             {articles
               .sort((a, b) => (a.data.title || a.id).localeCompare(b.data.title || b.id, 'zh-CN'))

@@ -19,7 +19,8 @@ if (!config) {
   return Astro.redirect('/')
 }
 
-const allArticles = await getCollection(currentStack as any)
+const allArticles = (await getCollection(currentStack as any))
+  .filter((entry: any) => !entry.id.endsWith('index.md'))
 
 // Group by category (directory)
 const categoryMap = new Map<string, any[]>()
@@ -31,7 +32,9 @@ for (const entry of allArticles) {
 }
 
 // Sort categories, sort articles within each category
-const categories = [...categoryMap.entries()].sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
+const categories = [...categoryMap.entries()]
+  .filter(([category]) => category !== '')
+  .sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
 
 // Current page path for active state
 const currentPath = Astro.url.pathname
@@ -44,18 +47,11 @@ const currentPath = Astro.url.pathname
 
   {categories.map(([category, articles]) => (
     <div class="sidebar-section">
-      {category ? (
-        <div class="sidebar-section-title" data-category={category}>
-          <span class="arrow">▼</span>
-          {category}
-        </div>
-      ) : (
-        <div class="sidebar-section-title">
-          <span class="arrow">▼</span>
-          未分类
-        </div>
-      )}
-      <ul class="sidebar-links" data-category-id={category || '__root'}>
+      <div class="sidebar-section-title" data-category={category}>
+        <span class="arrow">▼</span>
+        {category}
+      </div>
+      <ul class="sidebar-links" data-category-id={category}>
         {articles
           .sort((a, b) => (a.data.title || a.id).localeCompare(b.data.title || b.id, 'zh-CN'))
           .map(entry => {
@@ -79,7 +75,7 @@ const currentPath = Astro.url.pathname
 <script is:inline>
   document.querySelectorAll('.sidebar-section-title').forEach(el => {
     el.addEventListener('click', () => {
-      const id = el.dataset.categoryId || '__root'
+      const id = el.dataset.category || '__root'
       const links = document.querySelector(`[data-category-id="${id}"]`)
       if (links) links.classList.toggle('hidden')
       el.classList.toggle('collapsed')
