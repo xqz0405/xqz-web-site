@@ -5,9 +5,10 @@ import Sidebar from '../components/Sidebar.astro'
 interface Props {
   title: string
   currentStack: string
+  headings?: { depth: number; slug: string; text: string }[]
 }
 
-const { title, currentStack } = Astro.props
+const { title, currentStack, headings = [] } = Astro.props
 ---
 
 <BaseLayout title={title} currentStack={currentStack}>
@@ -18,5 +19,19 @@ const { title, currentStack } = Astro.props
         <slot />
       </article>
     </main>
+    {headings.length > 0 && (
+      <aside class="toc">
+        <div class="toc-title">目录</div>
+        <ul class="toc-links">
+          {headings
+            .filter((h) => h.depth >= 2 && h.depth <= 3)
+            .map((h) => (
+              <li class={`toc-h${h.depth}`}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+        </ul>
+      </aside>
+    )}
   </div>
 </BaseLayout>
