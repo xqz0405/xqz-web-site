@@ -3,14 +3,14 @@ name: Deploy to Server
 on:
   push:
     branches: [master]
-    paths-ignore:
-      - 'xqz-web'  # 子模块自动更新的提交不重复触发
   workflow_dispatch:
   schedule:
     - cron: '0 16 * * *'  # UTC 16:00 = 北京时间 0:00
 
 jobs:
   build-and-deploy:
+    # 子模块自动更新的提交会再触发一次 push，跳过避免重复构建
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, 'auto update submodule')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
