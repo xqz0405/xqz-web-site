@@ -22,11 +22,14 @@ const stacks = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} - xqz 技术知识库</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/xqz-logo.png" />
   </head>
   <body>
     <header class="header">
-      <a href="/" class="header-logo">xqz 技术知识库</a>
+      <a href="/" class="header-logo">
+        <img src="/xqz-logo.png" alt="xqz" class="logo-img" />
+        <span>知识库</span>
+      </a>
       <nav>
         <ul class="header-nav">
           {stacks.map(s => (

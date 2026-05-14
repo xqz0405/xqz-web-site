@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
+import { execSync } from 'child_process'
 import { fileURLToPath } from 'url'
 import matter from 'gray-matter'
 import { globSync } from 'glob'
@@ -228,7 +229,11 @@ function cleanContent() {
   for (const stack of list) {
     const dir = path.join(DOCS_ROOT, stack.name)
     if (fs.existsSync(dir)) {
-      fs.removeSync(dir)
+      try {
+        fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 })
+      } catch {
+        execSync(`rd /s /q "${dir}"`, { stdio: 'ignore' })
+      }
     }
   }
 }

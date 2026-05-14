@@ -63,6 +63,16 @@ a:hover {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--c-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-img {
+  height: 32px;
+  width: 32px;
+  border-radius: 6px;
+  object-fit: contain;
 }
 
 .header-logo:hover {
@@ -332,6 +342,14 @@ a:hover {
 .home-hero {
   text-align: center;
   padding: 80px 24px 40px;
+}
+
+.home-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  object-fit: contain;
 }
 
 .home-hero h1 {
